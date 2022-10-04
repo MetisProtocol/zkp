@@ -1,0 +1,86 @@
+
+str_segment = !{quote_string | quote_string ~ ":" ~ expr}
+str_list = ${ str_segment ~ (WHITESPACE+ ~ str_segment)*}
+
+uimm16 = { imm32 }
+imm16 = { imm32 }
+br_imm32 = { imm32 }
+// TODO: Break these up to make the translation easier
+imm32 = {abs_addr | "(" ~ abs_addr ~ ")" ~ ">>" ~ int | ident ~ op_additive ~ abs_addr | ident}
+addr = {ident ~ op_additive ~ abs_addr ~ "(" ~ reg ~ ")"
+            | ident ~ op_additive ~ abs_addr | abs_addr ~ op_additive ~ ident
+            | abs_addr ~ "(" ~ reg ~ ")" | ident ~ "(" ~ reg ~ ")"
+            | "(" ~ reg ~ ")"
+            | abs_addr
+            | ident}
+    abs_addr = {int ~ op_additive ~ int | int}
+
+src1 = { reg }
+src2 = { reg }
+dest = { reg }
+
+f_dest = { fp_reg }
+f_src1 = { fp_reg }
+f_src2 = { fp_reg }
+
+cop_reg = { reg | fp_reg }
+
+cc_reg = { reg }
+
+label = { ident }
+
+
+float_segment = !{float | float ~ ":" ~ expr}
+float_list = ${ float_segment ~ (WHITESPACE+ ~ float_segment)*}
+
+// directives
+
+// const auto ASM_DIRECTIVE_def =
+//     ALIAS_RULE | ALIGN_RULE | ASCII_RULE | ASCIIZ_RULE | ASM0_RULE | BNGB_RULE | BYTE_REPEAT_RULE | BYTE_RULE |
+//     COMM_RULE | DATA_RULE | KDATA_RULE | DOUBLE_REPEAT_RULE | DOUBLE_RULE | END_RULE | ENDB_RULE | ENDR_RULE |
+//     ENT_RULE | EXTERN_RULE | ERR_RULE | FILE_RULE | FLOAT_REPEAT_RULE | FLOAT_RULE | FMASK_RULE | FRAME_RULE |
+//     GLOBAL_RULE | HALF_REPEAT_RULE | HALF_RULE | LABEL_RULE | LCOMM_RULE | LIVEREG_RULE | LOC_RULE | MASK_RULE |
+//     NOALIAS_RULE | OPTIONS_RULE | REPEAT_RULE | RDATA_RULE | SDATA_RULE | SET_RULE | SPACE_RULE | STRUCT_RULE |
+//     TEXT_RULE | KTEXT_RULE | VERSTAMP_RULE | VREG_RULE | WORD_REPEAT_RULE | WORD_RULE;
+
+ALIAS = ${ ".alias" ~ WHITESPACE+ ~ reg ~ WHITESPACE+ ~ reg }
+ALIGN = ${ ".align" ~ WHITESPACE+ ~ expr }
+ASCII = ${ ".ascii" ~ WHITESPACE+ ~ str_list }
+ASCIIZ = ${ ".asciiz" ~ WHITESPACE+ ~ str_list }
+ASM0 = ${ ".asm0" }
+BNGB = ${ ".bgnb" ~ WHITESPACE+ ~ unsigned }
+BYTE = ${ ".byte" ~ WHITESPACE+ ~ expr_list }
+COMM = ${ ".comm" ~ WHITESPACE+ ~ ident ~ WHITESPACE+ ~ "," ~ WHITESPACE+ ~ expr } // I don't know why this requires a comma, but it is definitely listed with one
+DATA = ${ ".data" ~ WHITESPACE+ ~ (unsigned)? }
+KDATA = ${ ".kdata" ~ WHITESPACE+ ~ (unsigned)? }
+DOUBLE = ${ ".double" ~ WHITESPACE+ ~ float_list }
+END = ${ ".end" ~ WHITESPACE+ ~ (ident)? }
+ENDB = ${ ".endb" ~ WHITESPACE+ ~ unsigned }
+ENDR = ${ ".endr" }
+ENT = ${ ".ent" ~ WHITESPACE+ ~ ident ~ WHITESPACE+ ~ (unsigned)? }
+EXTERN = ${ ".extern" ~ WHITESPACE+ ~ ident ~ WHITESPACE+ ~ (unsigned)? }
+ERR = ${ ".err" }
+FILE = ${ ".file" ~ WHITESPACE+ ~ unsigned ~ WHITESPACE+ ~ quote_string }
+FLOAT = ${ ".float" ~ WHITESPACE+ ~ float_list }
+FMASK = ${ ".fmask" ~ WHITESPACE+ ~ unsigned ~ WHITESPACE+ ~ unsigned }
+FRAME = ${ ".frame" ~ WHITESPACE+ ~ reg ~ WHITESPACE+ ~ unsigned ~ WHITESPACE+ ~ reg }
+GLOBAL = ${ ".global" ~ WHITESPACE+ ~ ident }
+HALF = ${ ".half" ~ WHITESPACE+ ~ expr_list }
+LABEL = ${ ".lab" ~ WHITESPACE+ ~ ident }
+LCOMM = ${ ".lcomm" ~ WHITESPACE+ ~ ident ~ WHITESPACE+ ~ "," ~ WHITESPACE+ ~ expr }
+LIVEREG = ${ ".livereg" ~ WHITESPACE+ ~ unsigned ~ WHITESPACE+ ~ unsigned }
+LOC = ${ ".loc" ~ WHITESPACE+ ~ unsigned ~ WHITESPACE+ ~ unsigned }
+MASK = ${ ".mask" ~ WHITESPACE+ ~ unsigned ~ WHITESPACE+ ~ unsigned }
+NOALIAS = ${ ".noalias" ~ WHITESPACE+ ~ reg ~ WHITESPACE+ ~ reg }
+OPTIONS = ${ ".option" ~ WHITESPACE+ ~ ident}  //  ?
+REPEAT = ${ ".repeat" ~ WHITESPACE+ ~ expr }
+RDATA = ${ ".rdata" ~ WHITESPACE+ ~ (unsigned)? }
+SDATA = ${ ".sdata" ~ WHITESPACE+ ~ (unsigned)? }
+SET = ${ ".set" ~ WHITESPACE+ ~ ident }
+SPACE = ${ ".space" ~ WHITESPACE+ ~ expr }
+STRUCT = ${ ".struct" ~ WHITESPACE+ ~ expr }
+TEXT = ${ ".text" ~ WHITESPACE+ ~ (unsigned)? }
+KTEXT = ${ ".ktext" ~ WHITESPACE+ ~ (unsigned)? }
+VERSTAMP = ${ ".verstamp" ~ WHITESPACE+ ~ unsigned ~ WHITESPACE+ ~ unsigned }
+VREG = ${ ".vreg" ~ WHITESPACE+ ~ reg ~ WHITESPACE+ ~ unsigned ~ WHITESPACE+ ~ unsigned }
+WORD = ${ ".word" ~ WHITESPACE+ ~ expr_list }

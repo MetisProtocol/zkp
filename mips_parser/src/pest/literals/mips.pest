@@ -1,0 +1,145 @@
+// Implicit rules
+WHITESPACE = _{ " " | "\t" }
+COMMENT = _{ "/*" ~ (!"*/" ~ ANY)* ~ "*/" | "//" ~ (!EOI ~ !NEWLINE ~ ANY)*}
+
+// Normal replacement
+BLANK = _{ " " | "\t" | "\r" }
+
+
+// Reversed so that we try to match longer registers $10 before shorter registers $1 
+reg = @{ "$ra"|"$fp"|"$sp"|"$gp"|"$k1"|"$k0"|"$t9"|"$t8"|"$s7"|"$s6"|"$s5"|"$s4"|"$s3"|"$s2"|"$s1"|"$s0"|"$t7"|"$t6"|"$t5"|"$t4"|"$t3"|"$t2"|"$t1"|"$t0"|"$a3"|"$a2"|"$a1"|"$a0"|"$v1"|"$v0"|"$at"|"$zero"|"$31"|"$30"|"$29"|"$28"|"$27"|"$26"|"$25"|"$24"|"$23"|"$22"|"$21"|"$20"|"$19"|"$18"|"$17"|"$16"|"$15"|"$14"|"$13"|"$12"|"$11"|"$10"|"$9"|"$8"|"$7"|"$6"|"$5"|"$4"|"$3"|"$2"|"$1"|"$0"}
+fp_reg = @{ "$f31"|"$f30"|"$f29"|"$f28"|"$f27"|"$f26"|"$f25"|"$f24"|"$f23"|"$f22"|"$f21"|"$f20"|"$f19"|"$f18"|"$f17"|"$f16"|"$f15"|"$f14"|"$f13"|"$f12"|"$f11"|"$f10"|"$f9"|"$f8"|"$f7"|"$f6"|"$f5"|"$f4"|"$f3"|"$f2"|"$f1"|"$f0"}
+
+ident = @{!reg ~ !fp_reg ~ (ASCII_ALPHA | "." | "$" | "_") ~ (ASCII_ALPHANUMERIC | "." | "$" | "_")* }
+
+op_additive = @{ "+" | "-" }
+op_multiplicative = @{ "*" | "/" }
+op_unary = @{ "+" | "-" | "~"}
+op_bit_or = @{ "|" }
+op_bit_and = @{ "&" }
+
+
+int = ${op_additive? ~ unsigned}
+unsigned = ${ bin | hex | dec | char}
+    // Note: This breaks specification. Specification defines octal and not binary, which is a bit...
+    bin = ${ "0" ~ ("b" | "B") ~ ("_"? ~ ASCII_BIN_DIGIT)+ }
+    hex = ${ "0" ~ ("x" | "X") ~ ("_"? ~ ASCII_HEX_DIGIT)+ }
+    dec = ${ ASCII_DIGIT ~ ("_"? ~ ASCII_DIGIT)* }
+    char = ${ "\'" ~ (escape | ANY) ~ "\'"}
+    
+quote_string = ${ "\"" ~ (raw_string | escape)* ~ "\"" }
+    raw_string = @{ (!("\\" | "\"") ~ ANY)+ }
+    escape     = ${ "\\n" | "\\r" | "\\t" | "\\\\" | "\\0" | "\\\"" | "\\'" | "\\x"~ASCII_HEX_DIGIT{2} }
+
+
+str_segment = !{quote_string | quote_string ~ ":" ~ expr}
+str_list = ${ str_segment ~ (WHITESPACE+ ~ str_segment)*}
+
+uimm16 = { imm32 }
+imm16 = { imm32 }
+br_imm32 = { imm32 }
+// TODO: Break these up to make the translation easier
+imm32 = {abs_addr | "(" ~ abs_addr ~ ")" ~ ">>" ~ int | ident ~ op_additive ~ abs_addr | ident}
+addr = {ident ~ op_additive ~ abs_addr ~ "(" ~ reg ~ ")"
+            | ident ~ op_additive ~ abs_addr | abs_addr ~ op_additive ~ ident
+            | abs_addr ~ "(" ~ reg ~ ")" | ident ~ "(" ~ reg ~ ")"
+            | "(" ~ reg ~ ")"
+            | abs_addr
+            | ident}
+    abs_addr = {int ~ op_additive ~ int | int}
+
+src1 = { reg }
+src2 = { reg }
+dest = { reg }
+
+f_dest = { fp_reg }
+f_src1 = { fp_reg }
+f_src2 = { fp_reg }
+
+cop_reg = { reg | fp_reg }
+
+cc_reg = { reg }
+
+label = { ident }
+
+// expressions
+
+expr = { bit_or_expr }
+    bit_or_expr = { bit_and_expr ~ (op_bit_or ~ bit_and_expr)* }
+    bit_and_expr = {add_expr ~ (op_bit_and ~ add_expr)* }
+    add_expr = { mul_expr ~ (op_additive ~ mul_expr)* }
+    mul_expr = { unary_expr ~ (op_multiplicative ~ unary_expr)* }
+    unary_expr = { (op_unary ~ atomic_expr) | atomic_expr }
+    atomic_expr = { unsigned | ident | "(" ~ expr ~ ")" }
+expr_segment = !{expr | expr ~ ":" ~ expr}
+expr_list = ${ expr_segment ~ (WHITESPACE+ ~ expr_segment)*}
+
+
+float = @{
+    ("+" | "-")? ~ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+ ~ exp? |
+    ("+" | "-")? ~ ASCII_DIGIT+ ~ "." |
+    ("+" | "-")? ~ ASCII_DIGIT+ ~ exp
+}
+    // No support for hexadecimal support, which is also a bit...
+    // Defined regex +d1[.d2][e|E+d3] Note that + is optional (or negative, but not mentioned)
+    // or <+ or –> 0x <1 or 0 or nothing> .  <hex digits> H 0x <hex digits>
+exp   = { ^"e" ~ ("+" | "-")? ~ ASCII_DIGIT+ }
+float_segment = !{float | float ~ ":" ~ expr}
+float_list = ${ float_segment ~ (WHITESPACE+ ~ float_segment)*}
+
+// directives
+
+// const auto ASM_DIRECTIVE_def =
+//     ALIAS_RULE | ALIGN_RULE | ASCII_RULE | ASCIIZ_RULE | ASM0_RULE | BNGB_RULE | BYTE_REPEAT_RULE | BYTE_RULE |
+//     COMM_RULE | DATA_RULE | KDATA_RULE | DOUBLE_REPEAT_RULE | DOUBLE_RULE | END_RULE | ENDB_RULE | ENDR_RULE |
+//     ENT_RULE | EXTERN_RULE | ERR_RULE | FILE_RULE | FLOAT_REPEAT_RULE | FLOAT_RULE | FMASK_RULE | FRAME_RULE |
+//     GLOBAL_RULE | HALF_REPEAT_RULE | HALF_RULE | LABEL_RULE | LCOMM_RULE | LIVEREG_RULE | LOC_RULE | MASK_RULE |
+//     NOALIAS_RULE | OPTIONS_RULE | REPEAT_RULE | RDATA_RULE | SDATA_RULE | SET_RULE | SPACE_RULE | STRUCT_RULE |
+//     TEXT_RULE | KTEXT_RULE | VERSTAMP_RULE | VREG_RULE | WORD_REPEAT_RULE | WORD_RULE;
+
+ALIAS = ${ ".alias" ~ WHITESPACE+ ~ reg ~ WHITESPACE+ ~ reg }
+ALIGN = ${ ".align" ~ WHITESPACE+ ~ expr }
+ASCII = ${ ".ascii" ~ WHITESPACE+ ~ str_list }
+ASCIIZ = ${ ".asciiz" ~ WHITESPACE+ ~ str_list }
+ASM0 = ${ ".asm0" }
+BNGB = ${ ".bgnb" ~ WHITESPACE+ ~ unsigned }
+BYTE = ${ ".byte" ~ WHITESPACE+ ~ expr_list }
+COMM = ${ ".comm" ~ WHITESPACE+ ~ ident ~ WHITESPACE+ ~ "," ~ WHITESPACE+ ~ expr } // I don't know why this requires a comma, but it is definitely listed with one
+DATA = ${ ".data" ~ WHITESPACE+ ~ (unsigned)? }
+KDATA = ${ ".kdata" ~ WHITESPACE+ ~ (unsigned)? }
+DOUBLE = ${ ".double" ~ WHITESPACE+ ~ float_list }
+END = ${ ".end" ~ WHITESPACE+ ~ (ident)? }
+ENDB = ${ ".endb" ~ WHITESPACE+ ~ unsigned }
+ENDR = ${ ".endr" }
+ENT = ${ ".ent" ~ WHITESPACE+ ~ ident ~ WHITESPACE+ ~ (unsigned)? }
+EXTERN = ${ ".extern" ~ WHITESPACE+ ~ ident ~ WHITESPACE+ ~ (unsigned)? }
+ERR = ${ ".err" }
+FILE = ${ ".file" ~ WHITESPACE+ ~ unsigned ~ WHITESPACE+ ~ quote_string }
+FLOAT = ${ ".float" ~ WHITESPACE+ ~ float_list }
+FMASK = ${ ".fmask" ~ WHITESPACE+ ~ unsigned ~ WHITESPACE+ ~ unsigned }
+FRAME = ${ ".frame" ~ WHITESPACE+ ~ reg ~ WHITESPACE+ ~ unsigned ~ WHITESPACE+ ~ reg }
+GLOBAL = ${ ".global" ~ WHITESPACE+ ~ ident }
+HALF = ${ ".half" ~ WHITESPACE+ ~ expr_list }
+LABEL = ${ ".lab" ~ WHITESPACE+ ~ ident }
+LCOMM = ${ ".lcomm" ~ WHITESPACE+ ~ ident ~ WHITESPACE+ ~ "," ~ WHITESPACE+ ~ expr }
+LIVEREG = ${ ".livereg" ~ WHITESPACE+ ~ unsigned ~ WHITESPACE+ ~ unsigned }
+LOC = ${ ".loc" ~ WHITESPACE+ ~ unsigned ~ WHITESPACE+ ~ unsigned }
+MASK = ${ ".mask" ~ WHITESPACE+ ~ unsigned ~ WHITESPACE+ ~ unsigned }
+NOALIAS = ${ ".noalias" ~ WHITESPACE+ ~ reg ~ WHITESPACE+ ~ reg }
+OPTIONS = ${ ".option" ~ WHITESPACE+ ~ ident}  //  ?
+REPEAT = ${ ".repeat" ~ WHITESPACE+ ~ expr }
+RDATA = ${ ".rdata" ~ WHITESPACE+ ~ (unsigned)? }
+SDATA = ${ ".sdata" ~ WHITESPACE+ ~ (unsigned)? }
+SET = ${ ".set" ~ WHITESPACE+ ~ ident }
+SPACE = ${ ".space" ~ WHITESPACE+ ~ expr }
+STRUCT = ${ ".struct" ~ WHITESPACE+ ~ expr }
+TEXT = ${ ".text" ~ WHITESPACE+ ~ (unsigned)? }
+KTEXT = ${ ".ktext" ~ WHITESPACE+ ~ (unsigned)? }
+VERSTAMP = ${ ".verstamp" ~ WHITESPACE+ ~ unsigned ~ WHITESPACE+ ~ unsigned }
+VREG = ${ ".vreg" ~ WHITESPACE+ ~ reg ~ WHITESPACE+ ~ unsigned ~ WHITESPACE+ ~ unsigned }
+WORD = ${ ".word" ~ WHITESPACE+ ~ expr_list }
+
+
+// opcodes
+
+// statement = ${label? ~ WHITESPACE+ ~ instruction | label? ~ WHITESPACE+ ~ directive | label?}
