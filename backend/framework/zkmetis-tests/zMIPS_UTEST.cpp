@@ -6,7 +6,7 @@
 
 
 int securityParameter = 60;
-const string macros_file = "./framework/zmetis/src/macros.json";
+const string macros_file = "./framework/zkmetis/src/macros.json";
 
 TEST(zMIPS, factorial) {
 	string assembly_file = "./examples-zkmips/factorial/fact.zmips";
