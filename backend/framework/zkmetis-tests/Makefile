@@ -19,9 +19,9 @@ SRCS:=	$(shell ls *.cpp)
 OBJS=$(addprefix $(BLDDIR)/, $(SRCS:.cpp=.o))
 ZILCHOBJS := $(shell find $(ZILCHOBJ_DIR) -name '*.o' ! -name 'main.o')
 
-TARGET=$(BLDDIR)/zilch-tests
+TARGET=$(BLDDIR)/zkmetis-tests
 all: $(TARGET)
-DST=$(EXEDIR)/zilch-tests
+DST=$(EXEDIR)/zkmetis-tests
 	
 
 $(TARGET): $(OBJS)
