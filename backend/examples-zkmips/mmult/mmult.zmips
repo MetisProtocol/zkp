@@ -1,0 +1,41 @@
+move $t10, 2 # N = 2
+__L1__:
+    mult $t4, $t1, $t10 # i*N
+    move $t2, 0
+    __L2__:
+        sw $t0, $t2($t4)    # res[i*N+j] = 0;
+        move $t3, 0
+        __L3__:
+            add $t5, $t4, $t3   # mat1[i*N + k]
+            secseek $t6, $t5
+            mult $t7, $t3, $t10 # k*N
+            add $t9, $t7, $t2   # mat2[k*N+j];
+            secseek $t8, $t9
+            mult $t6, $t6, $t8  # mat1[i*N+k] * mat2[k*N+j];
+
+            add $t2, $t2, $t4
+            loadw $t7, $t4($t2)     # res[i*N+j]
+            lw $t6, $t6, $t7       # res[i*N+j] += mat1[i*N+k] * mat2[k*N+j];
+            sw $t6, $t4($t2)
+            sub $t2, $t2, $t4
+            add $t3, $t3, 1
+        blt $t3, $t10, __L3__
+        add $t2, $t2, 1
+    blt $t2, $t10, __L2__
+    add $t1, $t1, 1
+blt $t1, $t10, __L1__
+
+## Print results
+# move $t1, 0
+# __L4__:
+#     move $t2, 0
+#     __L5__:
+#         mult $t4, $t1, $t10  # i*N
+#         lw $t0, $t2($t4)    # res[i*N+j]
+#         print $t0
+#         add $t2, $t2, 1
+#     blt $t2, $t10, __L5__
+#     add $t1, $t1, 1
+# blt $t1, $t10, __L4__
+
+answer $t0

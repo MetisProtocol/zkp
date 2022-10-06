@@ -1,0 +1,35 @@
+move $t5, 3
+move $t4, 2
+secread $t0
+secread $t1
+
+ble $t0, $t1, __init__
+    move $t3, $t0
+    move $t6, 0
+    move $t2, $t1
+j __init_end__
+__init__:
+    move $t3, $t1
+    move $t6, 1
+    move $t2, $t0
+__init_end__:
+
+__L1__:
+    secread $t0
+
+    bgt $t3, $t0, __check2__
+        move $t2, $t3
+        move $t3, $t0
+        move $t6, $t4
+        j __check3__
+    __check2__:
+    bgt $t2, $t0, __check3__
+        move $t2, $t0
+    __check3__:
+
+    add $t4, $t4, 1
+bgt $t5, $t4, __L1__
+
+# print $t2 # bid to pay
+print $t6 # winner
+answer $t2

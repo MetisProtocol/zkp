@@ -1,0 +1,3 @@
+secread $t0
+sll $t0, $t0, 2
+answer $t0

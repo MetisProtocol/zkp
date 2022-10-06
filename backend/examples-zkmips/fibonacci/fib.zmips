@@ -1,0 +1,11 @@
+# pubread $t5
+move $t5, 10
+move $t3, 1
+move $t4, 1
+__L1__:
+    add $t1, $t2, $t3
+    move $t2, $t3
+    move $t3, $t1
+    add $t4, $t4, 1
+bgt $t5, $t4, __L1__
+answer $t1

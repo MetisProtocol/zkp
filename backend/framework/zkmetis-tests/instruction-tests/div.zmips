@@ -1,0 +1,3 @@
+secread $t0
+div $t0, $t0, 3
+answer $t0

@@ -1,0 +1,7 @@
+secread $t0
+move $t1, 1
+blt $t1, $t0, __L1__
+    move $t1, 0
+    answer $t1
+__L1__
+answer $t1

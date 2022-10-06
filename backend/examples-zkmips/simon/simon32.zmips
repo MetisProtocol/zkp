@@ -1,0 +1,25 @@
+move $t6, 32
+secread $t2
+secread $t3
+__L1__:
+    move $t4, $t2
+    srl $t7, $t4, 15
+    sll $t8, $t4, 1
+    or $t2, $t7, $t8
+    srl $t8, $t4, 8
+    sll $t7, $t4, 8
+    or $t5, $t8, $t7
+    and $t2, $t2, $t5
+    xor $t2, $t2, $t3
+    srl $t8, $t4, 14
+    sll $t7, $t4, 2
+    or $t5, $t8, $t7
+    xor $t2, $t2, $t5
+    secread $t7
+    xor $t2, $t2, $t7
+    move $t3, $t4
+    add $t1, $t1, 1
+bgt $t6, $t1, __L1__
+print $t2
+print $t3
+answer $t3
