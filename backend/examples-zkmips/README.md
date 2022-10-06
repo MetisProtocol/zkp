@@ -1,5 +1,5 @@
 # ZKMIPS ISA
-zKMIPS is our extension to the MIPS ISA to support programming ZKPs. Below we provide the zkMIPS enhanced ISA:
+
 
 | Instruction         | Description |
 |---------------------|-------------|
