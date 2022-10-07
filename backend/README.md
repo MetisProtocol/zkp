@@ -1,4 +1,4 @@
-### Install Dependencies
+# Install Dependencies
 ## sudo apt install g++
 ## sudo apt install libssl-dev
 ## sudo apt install libboost-all-dev
