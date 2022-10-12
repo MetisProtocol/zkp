@@ -1,14 +1,4 @@
-/** @file
- *****************************************************************************
- Declarations of the interfaces and basic gadgets for R1P (Rank 1 prime characteristic)
- constraint systems.
 
- See details in gadget.hpp .
- *****************************************************************************
- * @author     This file is part of libsnark, developed by SCIPR Lab
- *             and contributors (see AUTHORS).
- * @copyright  MIT license (see LICENSE file)
- *****************************************************************************/
 
 #include <cmath>
 #include <memory>
