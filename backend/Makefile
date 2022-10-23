@@ -20,9 +20,9 @@ ZILCH_TESTS_DIR 	:= $(WD)/framework/zkmetis-tests
 
 .PHONY: 							\
 		libstark libstark-clean 	\
-		zkmetis zilch-clean 	\
-		zilch-lib zilch-lib-clean \
-		zkmetis-tests zilch-tests-clean 	\
+		zkmetis zkmetis-clean 	\
+		zkmetis-lib zkmetis-lib-clean \
+		zkmetis-tests zkmetis-tests-clean 	\
 		fft fft-clean 				\
 		algebralib algebralib-clean \
 		gadgetlib gadgetlib-clean 	\
@@ -38,10 +38,10 @@ default: zkmetis
 help:
 	./$(TARGET) --help
 
-zkmetis: zilch-lib main
+zkmetis: zkmetis-lib main
 	$(CC) -o $(TARGET) $(WD)/$(BUILD_DIR)/main.o -fopenmp $(LNKFLAGS) $(LIBFLAGS) -march=native -lm -lpthread -lcrypto -ljsoncpp
 
-zilch-clean: zilch-lib-clean main-clean zilch-tests-clean
+zkmetis-clean: zkmetis-lib-clean main-clean zkmetis-tests-clean
 	$(RM) $(WD)/zkmetis
 	$(RM) $(WD)/zkmetis-tests
 		
@@ -51,7 +51,7 @@ main:
 main-clean:
 	$(RM) $(WD)/$(BUILD_DIR)/main.o
 
-zilch-lib: gadgetlib fft algebralib libstark
+zkmetis-lib: gadgetlib fft algebralib libstark
 	$(MAKE) -C $(ZILCH_DIR) 					\
 		BLDDIR=$(BLDDIR)/zkmetis               \
 		EXEDIR=$(EXE_DIR) 						\
@@ -64,9 +64,9 @@ zilch-lib: gadgetlib fft algebralib libstark
 		GADGET3INC=$(GADGETLIB3_DIR)/../.		\
 		GADGET3LNKDIR=$(BLDDIR)/gadgetlib
 
-zilch-lib-clean:
+zkmetis-lib-clean:
 	$(MAKE) clean -C $(ZILCH_DIR) 	\
-		BLDDIR=$(BLDDIR)/zilch 		\
+		BLDDIR=$(BLDDIR)/zkmetis 		\
 		EXEDIR=$(EXE_DIR)
 
 libstark:
@@ -118,8 +118,8 @@ zkmetis-tests: zkmetis-tests gadgetlib fft algebralib libstark
 		GADGET3INC=$(GADGETLIB3_DIR)/../.		\
 		GADGET3LNKDIR=$(BLDDIR)/gadgetlib		
 
-zilch-tests-clean:
+zkmetis-tests-clean:
 	$(MAKE) clean -C $(ZILCH_TESTS_DIR) BLDDIR=$(BLDDIR)/zkmetis-tests
 
-clean: gadgetlib-clean zilch-clean libstark-clean fft-clean algebralib-clean
+clean: gadgetlib-clean zkmetis-clean libstark-clean fft-clean algebralib-clean
 	$(RM) -r $(BLDDIR)
