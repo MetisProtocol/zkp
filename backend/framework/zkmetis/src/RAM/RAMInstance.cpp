@@ -62,6 +62,7 @@ string opcodeToString(const Opcode& op){
         case Opcode::PRINT: return "PRINT";
         case Opcode::PRINTLN: return "PRINTLN";
         case Opcode::NUM_OPCODES: return "NUM_OPCODES";
+        case Opcode::LUI: return "LUI";
         default:
 			std::cout<<"unfamiliar instruction";
 			throw("unfamiliar instruction");
@@ -98,6 +99,7 @@ Opcode opcodeFromString(const string op){
 	if(op == "JR") return Opcode::JR;
     if(op == "SW") return Opcode::SW;
     if(op == "LW") return Opcode::LW;
+    if(op == "LUI") return Opcode::LUI; 
 	if(op == "PRINT") return Opcode::PRINT;
 	if(op == "PRINTLN") return Opcode::PRINTLN;
 	if(op == "SECREAD") return Opcode::SECREAD;
@@ -195,16 +197,22 @@ string stringToUpper(string strToConvert) {
 
 MachineInstruction::MachineInstruction(const string line, const map<string, int> labels_map) {
     std::regex regex{R"([\s,]+)"}; // split on space and comma
+    std::cout<<"Test Formats 03" << endl;
     std::sregex_token_iterator it{line.begin(), line.end(), regex, -1};
     std::vector<string> words{it, {}};
-
+    std::cout<<"Test Formats 08" << endl;
+    std::cout<<"Test Formats 09" << words.size() <<  endl;
     if (words.size() != 4){
         std::cout<<"Bad format of line, each line must contain exactly 4 words";
         throw("bad format");
     }
+         std::cout<<"Test Formats 0" << endl;
 	string words0 = stringToUpper(words[0]);
-    opcode_ = opcodeFromString(words0);
+         std::cout<<"Test Formats 01" << endl; 
+   opcode_ = opcodeFromString(words0);
+       std::cout<<"Test Formats 02" << endl;
     destIdx_ = getRegNum(words[1]);
+        std::cout<<"Test Formats" << endl;
 	if (opcode_ == Opcode::SECSEEK) { // the first argument in SECSEEK can be either immediate or register
 		arg1isImmediate_ = !isReg(words[2]);
 		if (!arg1isImmediate_) {
@@ -215,6 +223,7 @@ MachineInstruction::MachineInstruction(const string line, const map<string, int>
 	} else {
 		arg1Idx_ = getRegNum(words[2]);
 	}
+     std::cout<<"Test Formats 1" << endl;
     bool arg2isLabel = is_zkmips_label(words[3]);
     if (arg2isLabel) {
         arg2isImmediate_ = true;
@@ -227,6 +236,7 @@ MachineInstruction::MachineInstruction(const string line, const map<string, int>
             arg2IdxOrImmediate_ = getImmidiate(words[3]);
         }
     }
+    std::cout<<"Test Formats 2" << endl; 
 }
 
 void RAMProgram::print() const {
@@ -310,19 +320,26 @@ void RAMProgram::addInstructionsFromFile(const string filename) {
     regex regex{R"([\n]+)"}; 													// split to lines
     sregex_token_iterator it{content.begin(), content.end(), regex, -1};
     vector<string> lines{it, {}};
-	// for (auto& l : lines){
-	// 	std::cout << l << std::endl; // print program as is
-	// }
+	 for (auto& l : lines){
+	 	std::cout << l << std::endl; // print program as is
+	 }
 
 	map<string, int> labels_map = buildLabelsMap(lines); 						// create a map for labels to instruction numbers
     for(const auto& l : lines){
 		if (l.empty()) continue; 												// if instruction is empty, skip it
 		vector<string> splitted_line = split(l); 								// tokenize the instruction
+        std::cout << "Print Program 5" << std::endl;
         if (is_zkmips_label(splitted_line[0])) { 										// if this line is a label, skip it
+            std::cout << "Print Program 4" << std::endl;
             continue;
         } else {
+            std::cout << "Print Program " << std::endl;
+            std::cout << "Print" << l << std::endl;
             MachineInstruction instruction(l, labels_map);
+            std::cout << "Print Program 1" << std::endl;
             addInstruction(instruction);
+            std::cout << "Print Program 2" << std::endl;  
         }
     }
+    std::cout << "Print Program 3" << std::endl;
 }

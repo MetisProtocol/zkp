@@ -27,18 +27,22 @@ libstark::BairWitness constructWitness(const RAMProgram& prog, const size_t t, c
 
 void execute_locally(const string assemblyFile, const string auxTapeFile, const size_t t, const size_t securityParameter, bool verbose, bool no_proof, bool tsteps_provided) {
     //Initialize instance
+    std::cout << "\nTest Start Protocol \n";
     initRAMParamsFromEnvVariables();
 	RAMProgram program(assemblyFile, REGISTERS_NUMBER, trRegisterLen);
+    std::cout << "\nTest Start Protocol 11 " << assemblyFile << "\n" ; 
     program.addInstructionsFromFile(assemblyFile);
-
+    std::cout << "\nTest Start Protocol 1 \n"; 
     // Read from tapes
     regex regex{R"([\n]+)"}; // split to lines
     // Read private inputs (auxTapeFile) to private_lines vector
     ifstream auxtapefs(auxTapeFile);
+    std::cout << "\nTest Start Protocol 3 \n";  
     string private_inputs((std::istreambuf_iterator<char>(auxtapefs)),std::istreambuf_iterator<char>());
     sregex_token_iterator pr_it{private_inputs.begin(), private_inputs.end(), regex, -1};
     vector<string> private_lines{pr_it, {}};
 
+    std::cout << "\nTest Start Protocol 2 \n";
     /* If the user provided an input for tsteps, use that */
     if (tsteps_provided) {
         const auto bairWitness = constructWitness(program, t, private_lines);     // witness is generated from the prover
@@ -66,6 +70,7 @@ void execute_locally(const string assemblyFile, const string auxTapeFile, const 
             return;
         }
     }
+    std::cout << "\nTest End Protocol \n";
 }
 
 void execute_network(const string assemblyFile, const string auxTapeFile, const size_t t, const size_t securityParameter, bool prover, const string& address, uint16_t port_number, bool verbose, const string& session) {    

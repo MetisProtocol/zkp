@@ -2,7 +2,7 @@
 
 using namespace std;
 
-#define DEBUG 0
+#define DEBUG 1
 
 int labelcnt_ = 1000;
 bool answer_instruction = false;
@@ -54,6 +54,8 @@ string zkmips_to_zkmetis_instruction(string& op, string& dst , string& src1, str
         return "AND " + get_native_register(dst) + " " + src1 + " " + src2;
     } else if (op == "OR" || op == "ORI") {
         return "OR " + get_native_register(dst) + " " + src1 + " " + src2;
+    }  else if (op == "LUI") {
+        return "LUI " + get_native_register(dst) + " " + src1;
     } else if (op == "NOR" || op == "NORI") {
         return "NOR " + get_native_register(dst) + " " + src1 + " " + src2;
     } else if (op == "XOR" || op == "XORI") {
@@ -341,6 +343,9 @@ string parse_zkmips(const string assemblyFile, const string primaryTapeFile, con
         std::remove(parsedAsmFile.c_str());
         std::cerr << endl << "zkMIPS assembly file should have an answer instruction." << endl << endl;
         exit(EXIT_FAILURE);
+    }
+    if (DEBUG) {
+        cout << "Testing zkmetis" << endl;
     }
     return parsedAsmFile;
 }
