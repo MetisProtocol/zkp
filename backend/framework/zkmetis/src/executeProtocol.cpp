@@ -16,12 +16,15 @@ libstark::BairInstance constructInstance(const RAMProgram& prog, const size_t t)
 libstark::BairWitness constructWitness(const RAMProgram& prog, const size_t t, const vector<string>& private_lines){
     resetALU_GadgetGlobalState();
     shared_ptr<const RAMProtoboardParams> archParams_(make_shared<const RAMProtoboardParams>(prog.archParams().numRegisters, trRegisterLen, trOpcodeLen, 16, 1));
-
+    std::cout << "\n Witness 1 \n";
     gadgetlib::ProtoboardPtr pb_witness = Protoboard::create(archParams_);
+    std::cout << "\n Witness 2 \n";
     cs2Bair cs2bair_witness(pb_witness, prog, int(gadgetlib::POW2(t) - 1), true, private_lines);
+    std::cout << "\n Witness 3 \n";
     unique_ptr<cs2BairColoring> cs2bairColoring_(new cs2BairColoring(cs2bair_witness));
+    std::cout << "\n Witness 4 \n"; 
     unique_ptr<cs2BairMemory> cs2bairMemory_(new cs2BairMemory(cs2bair_witness));
-
+    std::cout << "\n Witness 5 \n";
     return libstark::BairWitness(move(cs2bairColoring_), move(cs2bairMemory_));
 }
 
@@ -45,11 +48,14 @@ void execute_locally(const string assemblyFile, const string auxTapeFile, const 
     std::cout << "\nTest Start Protocol 2 \n";
     /* If the user provided an input for tsteps, use that */
     if (tsteps_provided) {
+        std::cout << "\nTest Start Protocol 9  \n";
         const auto bairWitness = constructWitness(program, t, private_lines);     // witness is generated from the prover
+        std::cout << "\nTest Start Protocol 4  \n";
         if (no_proof) return;
         if (found_answer_) {
             const auto bairInstance = constructInstance(program, t);                  // instance is generated from the verifier
             libstark::Protocols::executeProtocol(bairInstance, bairWitness, securityParameter, false, false, true, verbose);
+            std::cout << "\nTest Start Protocol 5 \n";
             return;
         } else {
             std::cout << "\nProgram could not finish within 2^" << t << "-1 instrucitons\n";
@@ -57,11 +63,14 @@ void execute_locally(const string assemblyFile, const string auxTapeFile, const 
         }
     } else { /* Find smallest parameter for tsteps */
         for (int i = 2 ; i < 15 ; i++) {
+            std::cout << "\nTest Start Protocol 6 \n";
             const auto bairWitness = constructWitness(program, i, private_lines);     // witness is generated from the prover
             if (found_answer_) {
                 if (no_proof) return;
+                std::cout << "\nTest Start Protocol 7 \n";
                 const auto bairInstance = constructInstance(program, i);                  // instance is generated from the verifier
                 libstark::Protocols::executeProtocol(bairInstance, bairWitness, securityParameter, false, false, true, verbose);
+                std::cout << "\nTest Start Protocol 8 \n"; 
                 return;
             }
         }

@@ -42,10 +42,15 @@ cs2Bair::cs2Bair(ProtoboardPtr pb, const RAMProgram& program, const int transcri
 	memoryFollowingTraceVariables_(followingTraceVariable_.first_.timeStamp_, followingTraceVariable_.second_.timeStamp_)
     {
 		this->init();
+                std::cout << "\nCs2 Bair \n";
 		this->generateConstraints();
+                std::cout << "\nCs2 Bair 1 \n";
 		this->boundaryConstraints();
+        std::cout << "\nCs2 Bair 2\n";
         if (constructWitness) {
+            std::cout << "\nCs2 Bair 3 \n";
             generateWitness();
+            std::cout << "\nCs2 Bair 4 \n";
             generateMemoryWitness();
         }
 }
@@ -178,9 +183,11 @@ void cs2Bair::createTranslationVector(){
 
 void cs2Bair::generateConstraints(){
     transitionFunction_->generateConstraints();
+         std::cout << "\nCs2 Bair 8 \n";
 	if (doesProgramUsesMemory_){
 		memoryConstraints_->generateConstraints();
 	}
+        std::cout << "\nCs2 Bair 9 \n";
 	createTranslationVector();
 }
 

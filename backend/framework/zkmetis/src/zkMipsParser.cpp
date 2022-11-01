@@ -55,7 +55,7 @@ string zkmips_to_zkmetis_instruction(string& op, string& dst , string& src1, str
     } else if (op == "OR" || op == "ORI") {
         return "OR " + get_native_register(dst) + " " + src1 + " " + src2;
     }  else if (op == "LUI") {
-        return "LUI " + get_native_register(dst) + " " + src1;
+        return "LUI " + get_native_register(dst) + " " + src1 + " " + src2;
     } else if (op == "NOR" || op == "NORI") {
         return "NOR " + get_native_register(dst) + " " + src1 + " " + src2;
     } else if (op == "XOR" || op == "XORI") {

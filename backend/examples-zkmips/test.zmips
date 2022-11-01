@@ -1,4 +1,4 @@
-lui $t0, $t2
+lui $t0, $t2, $t3
 ori $t0, $t1, $t2
 ori $t2, $t0, $t1
 answer $t2
