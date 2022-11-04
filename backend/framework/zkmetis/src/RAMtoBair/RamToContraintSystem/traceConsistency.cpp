@@ -196,6 +196,7 @@ void TraceConsistency::registerConsistency(){
 					case Opcode::CMPA:
 					case Opcode::CMPAE:
 					case Opcode::CMPG:
+                                        case Opcode::LUI:
 					case Opcode::CMPGE:
 					case Opcode::SW:
 					case Opcode::ANSWER:
@@ -299,6 +300,7 @@ void TraceConsistency::registersWitness(size_t programLine){
 			case Opcode::CMPA:
 			case Opcode::CMPAE:
 			case Opcode::CMPG:
+                        case Opcode::LUI:
 			case Opcode::CMPGE:
 			case Opcode::SW:
 			case Opcode::ANSWER:
@@ -349,7 +351,7 @@ void TraceConsistency::generateWitness(size_t programLine){
 	const Algebra::FElem generator = Algebra::FElem(getGF2E_X());
 	timeStampWitness();
 	Opcode opcode = program_.code()[programLine].opcode_;
-	if (opcode == Opcode::JMP || opcode == Opcode::CJMP || opcode == Opcode::JR || opcode == Opcode::CNJMP
+	if (opcode == Opcode::JMP || opcode == Opcode::LUI || opcode == Opcode::CJMP || opcode == Opcode::JR || opcode == Opcode::CNJMP
 	 	|| opcode == Opcode::BEQ || opcode == Opcode::BNE || opcode == Opcode::BLT || opcode == Opcode::BLE)
 	{
 		size_t nextLine;

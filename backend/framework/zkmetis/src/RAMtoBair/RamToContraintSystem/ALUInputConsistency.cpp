@@ -31,12 +31,13 @@ void ALUInputConsistency::generateConstraints(){
 	CircuitPolynomial resArg1, resArg2, resDest;
 	vector<long> selectorToConstraint;
 	vector<bool> selectorRelevant;
-
+        std::cout << "\nProgram Size" << program_.size() << "\n";
 	for (size_t i = 0; i < program_.size(); ++i){
 		size_t arg1 = program_.code()[i].arg1Idx_;
 		size_t arg2 = program_.code()[i].arg2IdxOrImmediate_;
 		size_t dest = program_.code()[i].destIdx_;
 		Opcode opcode = program_.code()[i].opcode_;
+                std::cout << "\nProgram Opcode" << &opcode;
 		if (Opcode::SECREAD == opcode || Opcode::SECSEEK == opcode) {
 			program_.arg2isImmediateToFalse(i);
 			arg2 = SECREAD_REGISTER;
@@ -57,6 +58,7 @@ void ALUInputConsistency::generateConstraints(){
 				arg2Poly = mapIntegerToFieldElement(0, params->registerLength(), arg2) + output_.arg2_val_;
 			}
 		}
+                std::cout << "\n Circuit Polynomial"; 
 		CircuitPolynomial arg1Poly(input_.registers_[arg1] + output_.arg1_val_);
 		CircuitPolynomial destPoly(input_.registers_[dest] + output_.dest_val_);
 		arg1Polynomials.emplace_back(arg1Poly);
@@ -65,6 +67,7 @@ void ALUInputConsistency::generateConstraints(){
 		selectorToConstraint.emplace_back(i);
 		selectorRelevant.push_back(true);
 	}
+        std::cout << "\n Circuit Polynomial 1";  
 	vector<Variable> opcodeVars = getPCVars(input_.pc_);
 	CircuitPolynomial SArg1(SelectorSum(arg1Polynomials, opcodeVars, selectorToConstraint, selectorRelevant));
 	CircuitPolynomial SArg2(SelectorSum(arg2Polynomials, opcodeVars, selectorToConstraint, selectorRelevant));
@@ -72,6 +75,7 @@ void ALUInputConsistency::generateConstraints(){
 	pb_->addGeneralConstraint(SArg1, "SelectorSum_ARG1", Opcode::NONE);
 	pb_->addGeneralConstraint(SArg2, "SelectorSum_ARG2", Opcode::NONE);
 	pb_->addGeneralConstraint(SDest, "SelectorSum_Dest", Opcode::NONE);
+       std::cout << "\n Circuit Polynomial 2";  
 };
 
 void ALUInputConsistency::generateWitness(size_t i, const vector<string>& private_lines, size_t& secread_cnt) {

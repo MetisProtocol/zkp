@@ -26,7 +26,9 @@ GadgetPtr TransitionFunction::create(ProtoboardPtr pb, const FollowingTraceVaria
 
 void TransitionFunction::init(){
 	aluInputConsistnecy_g_ = ALUInputConsistency::create(pb_, inputTraceLine_, aluInput);
+      
 	alu_g_ = ALU_Gadget::create(pb_, aluInput, aluOutput);
+        
 	traceConsistency_g_ = TraceConsistency::create(pb_, aluOutput, followingTraceVariable_);
 	(::std::dynamic_pointer_cast<ALUInputConsistency>(aluInputConsistnecy_g_))->setProgram(program_);
 	(::std::dynamic_pointer_cast<ALU_Gadget>(alu_g_))->setProgram(program_);
@@ -34,9 +36,13 @@ void TransitionFunction::init(){
 }
 
 void TransitionFunction::generateConstraints(){
+        std::cout << "\n Test Constraints 0 \n"; 
 	aluInputConsistnecy_g_->generateConstraints();
+        std::cout << "\n Test Constraints 1 \n"; 
 	alu_g_->generateConstraints();
+        std::cout << "\n Test Constraints 2 \n";  
 	traceConsistency_g_->generateConstraints();
+        std::cout << "\n Test Constraints 3 \n"; 
 };
 
 int TransitionFunction::calcPC(){
@@ -53,11 +59,13 @@ int TransitionFunction::calcPC(){
 void TransitionFunction::generateWitness(size_t i, const vector<string>& private_lines, size_t& secread_cnt){
 	int codeLineNumber = calcPC();
 	GADGETLIB_ASSERT(codeLineNumber < (long)program_.size(), "TransitionFunction: The code line number should be less than program.size()");
-
+        std::cout << "\n Test Witness 0 \n";  
 	(::std::dynamic_pointer_cast<ALUInputConsistency>(aluInputConsistnecy_g_))->generateWitness(codeLineNumber, private_lines, secread_cnt);
+        std::cout << "\n Test Witness \n"; 
 	(::std::dynamic_pointer_cast<ALU_Gadget>(alu_g_))->generateWitness(codeLineNumber);
+        std::cout << "\n Test Witness 1 \n";   
 	(::std::dynamic_pointer_cast<TraceConsistency>(traceConsistency_g_))->generateWitness(codeLineNumber);
-
+        std::cout << "\n Test Witness 2 \n";  
 	// Update Memory Info
 	::std::shared_ptr<const RAMProtoboardParams> params = std::dynamic_pointer_cast<const RAMProtoboardParams>(pb_->params());
 	MemoryInfo memInfo;
@@ -85,5 +93,7 @@ void TransitionFunction::generateWitness(size_t i, const vector<string>& private
 		bool isLoad = (Opcode::LW == opcode) ? true : false;
 		memInfo.updateIsLoadOp(isLoad);
 	}
+        std::cout << "\n Test Witness 3 \n";  
 	pb_->addMemoryInfo(memInfo);
+        std::cout << "\n Test Witness 4 \n"; 
 };

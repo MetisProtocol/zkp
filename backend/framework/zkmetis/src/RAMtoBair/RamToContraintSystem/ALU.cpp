@@ -111,6 +111,7 @@ void ALU_Gadget::createInternalComponents() {
 	components_[Opcode::CMPA] = ALU_CMPA_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::CMPAE] = ALU_CMPAE_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::CMPG] = ALU_CMPG_Gadget::create(pb_, inputVariables_, resultVariables_);
+        components_[Opcode::LUI] = ALU_LUI_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::CMPGE] = ALU_CMPGE_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::SHL] = ALU_SHL_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::SHR] = ALU_SHR_Gadget::create(pb_, inputVariables_, resultVariables_);
@@ -273,6 +274,9 @@ void ALU_Gadget::generateWitness(size_t i) {
     	case gadgetlib::Opcode::CMPG:
     		components_[Opcode::CMPG]->generateWitness();
     		break;
+        case gadgetlib::Opcode::LUI:
+                components_[Opcode::LUI]->generateWitness();
+                break;
     	case gadgetlib::Opcode::CMPGE:
     		components_[Opcode::CMPGE]->generateWitness();
     		break;
@@ -486,6 +490,7 @@ GadgetPtr ALU_OR_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const 
 	return pGadget;
 }
 
+
 void ALU_OR_Gadget::generateConstraints(){
 #ifdef DEBUG
     std::cout << "generateConstraints ALU_OR_Gadget" << '\n';
@@ -549,6 +554,59 @@ void ALU_OR_Gadget::generateWitness(){
         std::cout << '\n';
     #endif
 }
+
+
+ALU_LUI_Gadget::ALU_LUI_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results), cmpFlags_(opcodeAux2_), isGEQ_(opcodeAux2_[0]){}
+
+GadgetPtr ALU_LUI_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+	GadgetPtr pGadget(new ALU_LUI_Gadget(pb, inputs, results));
+	pGadget->init();
+	return pGadget;
+}
+
+void ALU_LUI_Gadget::init(){
+	unpack1_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg1_, inputs_.arg1_val_, PackingMode::UNPACK ,Opcode::LUI);
+	unpack2_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg2_, inputs_.arg2_val_, PackingMode::UNPACK ,Opcode::LUI);
+	compareArgs_ = GreaterEqual_Gadget::create(pb_, unpackedArg1_, unpackedArg2_, cmpFlags_, isGEQ_, true, Opcode::LUI);
+}
+
+void ALU_LUI_Gadget::generateConstraints(){
+#ifdef DEBUG
+    std::cout << "generateConstraints ALU_LUI_Gadget" << '\n';
+#endif
+	if (standAlone_){
+		unpack1_g_->generateConstraints();
+		unpack2_g_->generateConstraints();
+	}
+	compareArgs_->generateConstraints();
+	const Algebra::FElem g = Algebra::FElem(getGF2E_X());
+	const Algebra::FElem inv = (Algebra::one() + g).inverse();
+	CircuitPolynomial c(results_.flag_ + isGEQ_*(isGEQ_ + g)*inv);
+	pb_->addGeneralConstraint(c, "flag=isGEQ*(isGEQ+g)*(1+g)^{-1}", Opcode::LUI);
+	// add isMemOp = 0
+	pb_->addGeneralConstraint(results_.isMemOp_, "isMemOp = 0", Opcode::LUI);
+}
+
+void ALU_LUI_Gadget::generateWitness(){
+	initGeneralOpcodes(pb_);
+	initMemResult(pb_, results_);
+	unpack1_g_->generateWitness();
+	unpack2_g_->generateWitness();
+	compareArgs_->generateWitness();
+	FElem arg1Val = pb_->val(inputs_.arg1_val_);
+	FElem arg2Val = pb_->val(inputs_.arg2_val_);
+	pb_->val(results_.flag_) = (Algebra::one()==val(isGEQ_)) ? Algebra::one() : Algebra::zero();
+	pb_->val(results_.result_) = Algebra::zero(); // We don't care which value result_ holds - needed for the coloring
+
+    #ifdef DEBUG
+        std::cout << "\n\nALU_LUI_Gadget witness\nALUInput LUI:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput LUI" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
+}
+
 
 
 ALU_NOT_Gadget::ALU_NOT_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results){}
