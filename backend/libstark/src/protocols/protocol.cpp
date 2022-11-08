@@ -291,6 +291,7 @@ namespace Protocols{
             );
             acspWitness = CBairToAcsp::reduceWitness(instance, witness);
             doStatusLoop = false;
+            std::cout<<"\n BAIR to Acsp Instance Reduction: \n";
             barManager.join();
             if (verbose) {
                 std::cout<<"("<<reductionTimer.getElapsed()<<" seconds)"<<std::endl;

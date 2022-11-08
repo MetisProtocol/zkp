@@ -220,24 +220,30 @@ void cs2Bair::generateWitness() {
     size_t secread_cnt = 0;
     for (int i = 0; i < transcript_len; ++i) {
 		::std::dynamic_pointer_cast<TransitionFunction>(transitionFunction_)->generateWitness(i, private_lines_, secread_cnt);
+        std::cout << "\nPointer 01 \n";
         Algebra::VariableAssignment assignment = pb_->assignment();
+        std::cout << "\nPointer 02 \n"; 
         traceAssignmentTable_.push_back(assignmentToVec(assignment));
+        std::cout << "\nPointer 03 \n";
 #ifdef falseWitness
 		if (i == 3) {
             traceAssignmentTable_[i][4] = Algebra::xFE();
         }
-#endif
+#endif         
+                std::cout << "\nPointer 04\n";
 		copyTraceOutputValuesToTraceInput();
+                std::cout << "\nPointer 05 \n";
 #ifdef printTrace
-		// cout << "var num:" << assignment.size() << endl;
-		// cout << i << ":" << endl;
+		cout << "var num:" << assignment.size() << endl;
+		cout << i << ":" << endl;
 		for (auto j : assignment){
 			if (j.second != Algebra::zero()){
 				usedVars.insert(j.first);
-				// cout << "var num";
+				cout << "var num";
 			}
-			// cout << j.first.name() << ":" << j.second << " ";
+			 cout << j.first.name() << ":" << j.second << " ";
 		}
+             std::cout << "\nPointer 06 \n";
 	    // cout << "var num:" << pb_->getUsedVariables().size() << endl;
 
 		// for (auto j : pb_->getUsedVariables()){
@@ -253,7 +259,7 @@ void cs2Bair::generateWitness() {
 		cout << j.name() << " " <<endl;
 	cout << "total:" << usedVars.size();
 #endif
-
+       std::cout << "\nPointer 07 \n";
 }
 
 ConstraintSystem cs2Bair::getMemoryConstraints() const{
