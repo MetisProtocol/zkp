@@ -355,17 +355,19 @@ void TraceConsistency::generateWitness(size_t programLine){
 	 	|| opcode == Opcode::BEQ || opcode == Opcode::BNE || opcode == Opcode::BLT || opcode == Opcode::BLE)
 	{
 		size_t nextLine;
+                std::cout<<"\nTrace log 1 \n";
 		if (program_.code()[programLine].arg2isImmediate_){
 			nextLine = program_.code()[programLine].arg2IdxOrImmediate_;
 		} else {
 			size_t regIndex = program_.code()[programLine].arg2IdxOrImmediate_;
 			nextLine = mapFieldElementToInteger(0, program_.pcLength(), pb_->val(followingTraceVariables_.first_.registers_[regIndex]));
 		}
-
-		// Calculate PC
+               std::cout<<"\nTrace log \n";
+	
+           	// Calculate PC
 		if (opcode == Opcode::JMP || opcode == Opcode::JR) {
 			pcWitness(nextLine);
-		} else if (opcode == Opcode::CJMP) {
+		} else if (opcode == Opcode::CJMP || opcode == Opcode::LUI) {
 			if (pb_->val(followingTraceVariables_.first_.flag_) == Algebra::one()){
 				pcWitness(nextLine);
 			} else{
