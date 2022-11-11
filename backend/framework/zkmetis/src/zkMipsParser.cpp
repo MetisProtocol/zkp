@@ -94,6 +94,8 @@ string zkmips_to_zkmetis_instruction(string& op, string& dst , string& src1, str
         return "SNE " + get_native_register(dst) + " " + src1 + " " + src2;
     } else if (op == "SLT") {
         return "SLT " + get_native_register(dst) + " " + src1 + " " + src2;
+    } else if (op == "SLTU") {
+        return "SLTU " + get_native_register(dst) + " " + src1 + " " + src2;
     } else if (op == "SLE") {
         return "SLE " + get_native_register(dst) + " " + src1 + " " + src2;
     } else if (op == "MOVE" || op == "LA" || op == "LI") {

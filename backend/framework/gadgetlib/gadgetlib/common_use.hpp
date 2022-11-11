@@ -43,6 +43,7 @@ enum class Opcode : int {
 	SEQ = 19,
 	SNE = 20,
 	SLT = 21,
+        SLTU = 43,
 	SLE = 22,
 
 	JMP = 23,
@@ -71,7 +72,7 @@ enum class Opcode : int {
 	ERROR = 41,
         LUI = 42,           
    
-	NUM_OPCODES = 43
+	NUM_OPCODES = 44
 }; // enum Opcode
 // Check NUMBER_OPCODES
 

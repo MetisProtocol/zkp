@@ -178,6 +178,7 @@ void TraceConsistency::registerConsistency(){
 					case Opcode::SEQ:
 					case Opcode::SNE:
 					case Opcode::SLT:
+                                        case Opcode::SLTU:
 					case Opcode::SLE:
 					case Opcode::RESERVED_OPCODE_24:
 						selectorToConstraint[j] = 0;
@@ -283,6 +284,7 @@ void TraceConsistency::registersWitness(size_t programLine){
 			case Opcode::SEQ:
 			case Opcode::SNE:
 			case Opcode::SLT:
+                        case Opcode::SLTU:
 			case Opcode::SLE:
 			case Opcode::RESERVED_OPCODE_24:
 				pb_->val(regiSecond) = pb_->val(aluOutput_.result_);

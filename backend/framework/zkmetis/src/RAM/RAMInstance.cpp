@@ -52,6 +52,7 @@ string opcodeToString(const Opcode& op){
 		case Opcode::SEQ: return "SEQ";
 		case Opcode::SNE: return "SNE";
 		case Opcode::SLT: return "SLT";
+                case Opcode::SLTU: return "SLTU";  
 		case Opcode::SLE: return "SLE";
         case Opcode::CNJMP: return "CNJMP";
         case Opcode::RESERVED_OPCODE_24: return "RESERVED_OPCODE_24";
@@ -94,6 +95,7 @@ Opcode opcodeFromString(const string op){
     if(op == "SEQ") return Opcode::SEQ;
     if(op == "SNE") return Opcode::SNE;
     if(op == "SLT") return Opcode::SLT;
+    if(op == "SLTU") return Opcode::SLTU;
     if(op == "SLE") return Opcode::SLE;
 	if(op == "JMP") return Opcode::JMP;
 	if(op == "JR") return Opcode::JR;

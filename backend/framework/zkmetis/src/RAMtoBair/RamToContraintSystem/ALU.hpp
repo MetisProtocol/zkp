@@ -681,6 +681,23 @@ private:
 	DISALLOW_COPY_AND_ASSIGN(ALU_SLT_Gadget);
 };
 
+class ALU_SLTU_Gadget : public ALU_Component_Gadget {
+private:
+        ALU_SLTU_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+        virtual void init();
+public:
+        static GadgetPtr create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results);
+        void generateConstraints();
+        void generateWitness();
+private:
+        Algebra::UnpackedWord cmpFlags_;
+        Algebra::Variable isGEQ_;
+        GadgetPtr unpack1_g_;
+        GadgetPtr unpack2_g_;
+        GadgetPtr compareArgs_;
+        DISALLOW_COPY_AND_ASSIGN(ALU_SLTU_Gadget);
+};
+
 
 class ALU_SLE_Gadget : public ALU_Component_Gadget {
 private:

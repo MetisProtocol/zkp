@@ -132,6 +132,7 @@ void ALU_Gadget::createInternalComponents() {
     components_[Opcode::SEQ] = ALU_SEQ_Gadget::create(pb_, inputVariables_, resultVariables_);
     components_[Opcode::SNE] = ALU_SNE_Gadget::create(pb_, inputVariables_, resultVariables_);
     components_[Opcode::SLT] = ALU_SLT_Gadget::create(pb_, inputVariables_, resultVariables_);
+//    components_[Opcode::SLTU] = ALU_SLTU_Gadget::create(pb_, inputVariables_, resultVariables_);
     components_[Opcode::SLE] = ALU_SLE_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::RESERVED_OPCODE_24] = ALU_RESERVED_OPCODE_24_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::MOVE] = ALU_MOV_Gadget::create(pb_, inputVariables_, resultVariables_);
@@ -324,6 +325,9 @@ void ALU_Gadget::generateWitness(size_t i) {
             break;
         case gadgetlib::Opcode::SLT:
             components_[Opcode::SLT]->generateWitness();
+            break;
+        case gadgetlib::Opcode::SLTU:
+            components_[Opcode::SLTU]->generateWitness();
             break;
         case gadgetlib::Opcode::SLE:
             components_[Opcode::SLE]->generateWitness();
@@ -2173,6 +2177,53 @@ void ALU_SLT_Gadget::generateWitness(){
         std::cout << "\n\nALU_SLT_Gadget witness\nALUInput SLT:\n";
         inputs_.printALUInput(pb_);
         std::cout << "ALUOutput SLT" << '\n';
+        results_.printALUOutput(pb_);
+        std::cout << '\n';
+    #endif
+}
+
+
+ALU_SLTU_Gadget::ALU_SLTU_Gadget(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results) : Gadget(pb), ALU_Component_Gadget(pb, inputs, results), cmpFlags_(opcodeAux2_), isGEQ_(opcodeAux2_[0]){}
+
+GadgetPtr ALU_SLTU_Gadget::create(ProtoboardPtr pb, const ALUInput& inputs, const ALUOutput& results){
+        GadgetPtr pGadget(new ALU_SLTU_Gadget(pb, inputs, results));
+        pGadget->init();
+        return pGadget;
+}
+
+void ALU_SLTU_Gadget::init() {
+    unpack1_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg1_, inputs_.arg2_val_, PackingMode::UNPACK ,Opcode::SLTU);
+    unpack2_g_ = CompressionPacking_Gadget::create(pb_, unpackedArg2_, inputs_.arg1_val_, PackingMode::UNPACK ,Opcode::SLTU);
+    compareArgs_ = GreaterEqual_Gadget::create(pb_, unpackedArg1_, unpackedArg2_, cmpFlags_, isGEQ_, true, Opcode::SLTU);
+}
+
+void ALU_SLTU_Gadget::generateConstraints(){
+#ifdef DEBUG
+    std::cout << "generateConstraints ALU_SLTU_Gadget" << '\n';
+#endif
+    if (standAlone_){
+        unpack1_g_->generateConstraints();
+        unpack2_g_->generateConstraints();
+    }
+    compareArgs_->generateConstraints();
+        const Algebra::FElem g = Algebra::FElem(getGF2E_X());
+        const Algebra::FElem inv = (Algebra::one() + g).inverse();
+        CircuitPolynomial c(results_.result_ + isGEQ_*(isGEQ_ + g)*inv);
+        pb_->addGeneralConstraint(c, "result.result=isGEQ*(isGEQ+g)*(1+g)^{-1}", Opcode::SLTU);
+    pb_->addGeneralConstraint(results_.isMemOp_, "isMemOp = 0", Opcode::SLTU);
+}
+
+void ALU_SLTU_Gadget::generateWitness(){
+        initGeneralOpcodes(pb_);
+        initMemResult(pb_, results_);
+    unpack1_g_->generateWitness();
+        unpack2_g_->generateWitness();
+        compareArgs_->generateWitness();
+        pb_->val(results_.result_) = (Algebra::one() == val(isGEQ_)) ? Algebra::one() : Algebra::zero();
+    #ifdef DEBUG
+        std::cout << "\n\nALU_SLTU_Gadget witness\nALUInput SLTU:\n";
+        inputs_.printALUInput(pb_);
+        std::cout << "ALUOutput SLTU" << '\n';
         results_.printALUOutput(pb_);
         std::cout << '\n';
     #endif
