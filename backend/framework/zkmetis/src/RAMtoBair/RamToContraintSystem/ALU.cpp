@@ -132,7 +132,9 @@ void ALU_Gadget::createInternalComponents() {
     components_[Opcode::SEQ] = ALU_SEQ_Gadget::create(pb_, inputVariables_, resultVariables_);
     components_[Opcode::SNE] = ALU_SNE_Gadget::create(pb_, inputVariables_, resultVariables_);
     components_[Opcode::SLT] = ALU_SLT_Gadget::create(pb_, inputVariables_, resultVariables_);
-//    components_[Opcode::SLTU] = ALU_SLTU_Gadget::create(pb_, inputVariables_, resultVariables_);
+     std::cout << "\nSLTU Begin \n";
+    components_[Opcode::SLTU] = ALU_SLTU_Gadget::create(pb_, inputVariables_, resultVariables_);
+    std::cout << "\nSLTU End \n";
     components_[Opcode::SLE] = ALU_SLE_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::RESERVED_OPCODE_24] = ALU_RESERVED_OPCODE_24_Gadget::create(pb_, inputVariables_, resultVariables_);
 	components_[Opcode::MOVE] = ALU_MOV_Gadget::create(pb_, inputVariables_, resultVariables_);
@@ -179,9 +181,11 @@ void ALU_Gadget::generateConstraints() {
 	unpackArg1_g_->generateConstraints();
 	unpackArg2_g_->generateConstraints();
 	//standAlone_ = false; //uncomment if needed
+        std::cout << "\nSLTU constraint begin \n"; 
 	for (auto& componentPair : components_) {
 		componentPair.second->generateConstraints();
 	}
+        std::cout << "\nSLTU constraint end \n"; 
 	GADGETLIB_ASSERT(program_.size() > 0, "The program should be initalized");
 
 	size_t programLength = (size_t)(program_.size());
