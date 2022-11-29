@@ -2202,19 +2202,22 @@ void ALU_SLTU_Gadget::init() {
 }
 
 void ALU_SLTU_Gadget::generateConstraints(){
-#ifdef DEBUG
+// #ifdef DEBUG
     std::cout << "generateConstraints ALU_SLTU_Gadget" << '\n';
-#endif
+// #endif
     if (standAlone_){
         unpack1_g_->generateConstraints();
         unpack2_g_->generateConstraints();
     }
+    std::cout << "generateConstraints ALU_SLTU_Gadget 1" << '\n';   
     compareArgs_->generateConstraints();
         const Algebra::FElem g = Algebra::FElem(getGF2E_X());
         const Algebra::FElem inv = (Algebra::one() + g).inverse();
         CircuitPolynomial c(results_.result_ + isGEQ_*(isGEQ_ + g)*inv);
+        std::cout << "generateConstraints ALU_SLTU_Gadget 2" << '\n';
         pb_->addGeneralConstraint(c, "result.result=isGEQ*(isGEQ+g)*(1+g)^{-1}", Opcode::SLTU);
     pb_->addGeneralConstraint(results_.isMemOp_, "isMemOp = 0", Opcode::SLTU);
+        std::cout << "generateConstraints ALU_SLTU_Gadget 3" << '\n';
 }
 
 void ALU_SLTU_Gadget::generateWitness(){
