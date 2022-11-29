@@ -11,4 +11,4 @@ develop - working development build
 
 develop_backup - experiemental build
 
-master - release build
+main - release build
