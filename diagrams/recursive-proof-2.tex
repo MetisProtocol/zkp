@@ -1,0 +1,31 @@
+\begin{tikzpicture}
+    \node[circle, draw] (P1) at (0,0) {$P$};
+    \node[circle, draw] (V1) at ($(P1)+(1.5,0)$) {$V$};
+    \node[circle, draw] (P2) at ($(V1)+(1.5,0)$) {$P$};
+    \node[circle, draw] (V2) at ($(P2)+(1.5,0)$) {$V$};
+    \node[circle, draw] (P3) at ($(V2)+(1.5,0)$) {$P$};
+    \node[circle, draw] (V3) at ($(P3)+(1.5,0)$) {$V$};
+    \node[circle, draw] (P4) at ($(V3)+(1.5,0)$) {$P$};
+    \node[circle, draw] (V4) at ($(P4)+(1.5,0)$) {$V$};
+    \node[circle, draw] (Prec) at ($(V4)+(0,2.0)$) {$P^\star$};
+    \node[circle, draw] (Vrec) at (12,2) {$V^\star$};
+    
+    % \draw[dotted] ($(P1)+(-2.0,+1.0)$) -- ($(V4)+(+2.0,+1.0)$) node[anchor=south east] {master} node[anchor=north east] {slaves};
+
+    \draw (P1) edge[->] node[anchor=south] {$\pi_1$} (V1);
+    \draw (V1) edge[<-] ($(V1)+(0,1.0)$); \draw ($(V1)+(0,1.0)$) edge ($(Prec)+(0,-1.0)$); \draw ($(Prec)+(0,-1.0)$) edge[->] (Prec);
+    \draw (P2) edge[->] node[anchor=south] {$\pi_2$} (V2);
+    \draw (V2) edge[<-] ($(V2)+(0,1.0)$);
+    \draw (P3) edge[->] node[anchor=south] {$\pi_3$} (V3);
+    \draw (V3) edge[<-] ($(V3)+(0,1.0)$);
+    \draw (P4) edge[->] node[anchor=south] {$\pi_4$} (V4);
+    \draw (V4) edge[<-] ($(V4)+(0,1.0)$); \draw ($(V4)+(0,1.0)$) edge ($(Prec)+(0,-1.0)$); \draw ($(Prec)+(0,-1.0)$) edge[->] (Prec);
+    \draw (Prec) edge[->] node[anchor=south] {$\pi^\star$} (Vrec);
+    
+    \node[draw] (C1) at ($(P1)+(0,-1.5)$) {Computation 1}; \draw (C1) edge[->] (P1);
+    \node[draw] (C2) at ($(P2)+(0,-1.5)$) {Computation 2}; \draw (C2) edge[->] (P2);
+    \node[draw] (C3) at ($(P3)+(0,-1.5)$) {Computation 3}; \draw (C3) edge[->] (P3);
+    \node[draw] (C4) at ($(P4)+(0,-1.5)$) {Computation 4}; \draw (C4) edge[->] (P4);
+    
+    \clip (-2.0,-2.0) grid (13,2.75);
+\end{tikzpicture}

@@ -1,0 +1,16 @@
+\begin{tikzpicture}
+    \node[circle, draw] (P) at (0,0) {$P$};
+    \node[circle, draw] (V) at ($(P)+(2.5,0)$) {$V$};
+    \node[circle, draw] (Prec) at ($(V)+(0,2.0)$) {$P^\star$};
+    \node[circle, draw] (Vrec) at ($(Prec)+(2.5,0)$) {$V^\star$};
+
+    \draw[dashed, rounded corners=10] ($(V)+(-0.75,-0.75)$) -- ($(V)+(+0.75,-0.75)$) -- ($(Prec)+(+0.75,+0.75)$) -- ($(Prec)+(-0.75,+0.75)$) -- cycle;
+    
+    \draw (P) edge node[fill=white] {$\pi$} ($(V)+(-0.75,0)$); \draw ($(V)+(-0.75,0)$) edge[->] (V);
+    \draw (V) edge[<->] (Prec);
+    \draw (Prec) edge ($(Prec)+(0.75,0)$); \draw ($(Prec)+(0.75,0)$) edge[->] node[fill=white] {$\pi^\star_{\ }$} (Vrec);
+    
+    \node[draw] (C) at ($(P)+(0,-1.5)$) {Computation}; \draw (C) edge[->] (P);
+    
+    % \clip (-1.0,-2.0) grid (4,3.0);
+\end{tikzpicture}
